@@ -181,23 +181,36 @@
     color: var(--text-dim);
     text-decoration: none;
     font-size: 0.85rem;
+    font-weight: 500;
     padding: 0.5rem 1rem;
     border-radius: 6px;
     white-space: nowrap;
     transition: all 0.15s ease;
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
   }
 
   nav.toc a:hover {
-    color: var(--text);
-    background: var(--bg-card);
-    border-color: var(--border);
+    color: var(--accent);
+    background: var(--accent-glow);
+    border-color: var(--accent-dim);
+    transform: translateY(-1px);
+  }
+
+  nav.toc a:active {
+    transform: translateY(0);
+  }
+
+  nav.toc a:target,
+  :target + * nav.toc a {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   /* Sections */
   section {
     padding: 3rem 0;
-    scroll-margin-top: 80px;
+    scroll-margin-top: 100px;
   }
 
   .section-header {
