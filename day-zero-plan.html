@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day Zero: God-Tier ECU Shop Build</title>
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --bg-elev: #121215;
+    --bg-card: #18181c;
+    --bg-card-hover: #1f1f24;
+    --border: #26262c;
+    --border-accent: #3a3a44;
+    --text: #e8e8ec;
+    --text-dim: #9a9aa4;
+    --text-faint: #5a5a64;
+    --accent: #ff5722;
+    --accent-dim: #cc3f14;
+    --accent-glow: rgba(255, 87, 34, 0.12);
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Background pattern */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255, 87, 34, 0.04), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.03), transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    padding: 6rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    border-radius: 4px;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #fff 0%, #a0a0aa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  h1 .accent {
+    background: linear-gradient(135deg, var(--accent) 0%, #ff8a65 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    font-size: 1.25rem;
+    color: var(--text-dim);
+    max-width: 720px;
+    margin-bottom: 3rem;
+  }
+
+  /* Headline stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .stat-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+  }
+
+  .stat-card.primary {
+    background: linear-gradient(135deg, rgba(255, 87, 34, 0.08), rgba(255, 87, 34, 0.02));
+    border-color: var(--accent-dim);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-value.big {
+    font-size: 2.5rem;
+    color: var(--accent);
+  }
+
+  .stat-sub {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 0.25rem;
+  }
+
+  /* Navigation */
+  nav.toc {
+    position: sticky;
+    top: 0;
+    background: rgba(10, 10, 11, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+    padding: 1rem 0;
+    margin-bottom: 3rem;
+  }
+
+  nav.toc .container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  nav.toc .container::-webkit-scrollbar { display: none; }
+
+  nav.toc a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+  }
+
+  nav.toc a:hover {
+    color: var(--text);
+    background: var(--bg-card);
+    border-color: var(--border);
+  }
+
+  /* Sections */
+  section {
+    padding: 3rem 0;
+    scroll-margin-top: 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .section-title .num {
+    font-family: "SF Mono", "Monaco", "Menlo", monospace;
+    color: var(--accent);
+    font-size: 1rem;
+    margin-right: 1rem;
+    opacity: 0.8;
+  }
+
+  .section-subtotal {
+    font-family: "SF Mono", "Monaco", "Menlo", monospace;
+    font-size: 1.25rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .section-description {
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+    max-width: 820px;
+  }
+
+  /* Item cards */
+  .items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1rem;
+  }
+
+  .item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+  }
+
+  .item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .item-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .item-price {
+    font-family: "SF Mono", "Monaco", "Menlo", monospace;
+    font-size: 1rem;
+    color: var(--accent);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .item-description {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    flex: 1;
+    margin-bottom: 1rem;
+  }
+
+  .item-link {
+    color: var(--blue);
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    width: fit-content;
+  }
+
+  .item-link:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+
+  .item-link::after {
+    content: "→";
+    transition: transform 0.15s ease;
+  }
+
+  .item-link:hover::after {
+    transform: translateX(3px);
+  }
+
+  .no-link {
+    color: var(--text-faint);
+    font-size: 0.8rem;
+    font-style: italic;
+  }
+
+  /* Recurring tables */
+  .recurring-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .recurring-table thead {
+    background: var(--bg-elev);
+  }
+
+  .recurring-table th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .recurring-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  .recurring-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .recurring-table tbody tr:hover {
+    background: var(--bg-card-hover);
+  }
+
+  .recurring-table .price {
+    font-family: "SF Mono", "Monaco", "Menlo", monospace;
+    color: var(--accent);
+    text-align: right;
+    font-weight: 600;
+  }
+
+  .recurring-table tfoot td {
+    background: var(--bg-elev);
+    font-weight: 700;
+    border-top: 2px solid var(--accent-dim);
+    border-bottom: none;
+    font-size: 1rem;
+  }
+
+  /* Grand total */
+  .grand-total {
+    background: linear-gradient(135deg, rgba(255, 87, 34, 0.15), rgba(255, 87, 34, 0.05));
+    border: 1px solid var(--accent-dim);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    margin: 4rem 0;
+  }
+
+  .grand-total .label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .grand-total .number {
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--accent) 0%, #ff8a65 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+
+  .grand-total .breakdown {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+
+  .grand-total .breakdown span strong {
+    color: var(--text);
+    font-family: "SF Mono", "Monaco", "Menlo", monospace;
+  }
+
+  /* PoC projects */
+  .poc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
+
+  .poc-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--purple);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+
+  .poc-number {
+    font-family: "SF Mono", "Monaco", "Menlo", monospace;
+    font-size: 0.75rem;
+    color: var(--purple);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .poc-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .poc-cost {
+    font-family: "SF Mono", "Monaco", "Menlo", monospace;
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 6rem;
+    padding: 3rem 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.85rem;
+  }
+
+  footer strong {
+    color: var(--text-dim);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .container { padding: 0 1rem; }
+    header { padding: 3rem 0 2rem; }
+    .section-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+    .grand-total { padding: 2rem 1rem; }
+    .grand-total .breakdown { flex-direction: column; gap: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <span class="eyebrow">Day Zero Build Plan</span>
+    <h1>God-Tier ECU Shop<br><span class="accent">Complete Buy List</span></h1>
+    <p class="subtitle">
+      Full functionality from hour one. Every tool, every subscription, every piece of software required to access and modify any ECU on any target vehicle. Mercedes, Porsche, BMW, Audi/VW. OBD, bench, chip-off, HSM.
+    </p>
+
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-label">Day Zero Cash</div>
+        <div class="stat-value big">$362,900</div>
+        <div class="stat-sub">CapEx + prepaid year 1 + PoC budget</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">One-Time CapEx</div>
+        <div class="stat-value">$244,975</div>
+        <div class="stat-sub">Hardware + perpetual licenses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Monthly Recurring</div>
+        <div class="stat-value">$1,526</div>
+        <div class="stat-sub">$18,312 annualized</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Annual Recurring</div>
+        <div class="stat-value">$63,899</div>
+        <div class="stat-sub">Software + OEM + services</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="container">
+    <a href="#flashing">Flashing</a>
+    <a href="#dealer">Dealer Tools</a>
+    <a href="#keys">Key Programming</a>
+    <a href="#chipoff">Chip-Off</a>
+    <a href="#signal">Signal Analysis</a>
+    <a href="#hsm">HSM Research</a>
+    <a href="#bench">Bench Test</a>
+    <a href="#custom">Custom Dev</a>
+    <a href="#workstation">Workstation</a>
+    <a href="#software">Software</a>
+    <a href="#safety">Safety</a>
+    <a href="#mre">Monthly</a>
+    <a href="#are">Annual</a>
+    <a href="#poc">PoC Budget</a>
+    <a href="#total">Grand Total</a>
+  </div>
+</nav>
+
+<main class="container">
+
+  <!-- FLASHING -->
+  <section id="flashing">
+    <div class="section-header">
+      <div class="section-title"><span class="num">01</span>Flashing Arsenal</div>
+      <div class="section-subtotal">$32,000</div>
+    </div>
+    <p class="section-description">
+      The physical dongles that read, decrypt (via service), modify, and write ECU firmware. Full redundancy across three tools so every target ECU has a coverage path. These are the hardware keys that cannot be software-replaced.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Alientech KESS3 Master (Car)</div>
+          <div class="item-price">$4,500</div>
+        </div>
+        <p class="item-description">
+          Primary flashing tool with the broadest protocol coverage in the industry. Handles OBD, bench, and boot-mode flashing across Mercedes, Porsche, BMW, and VAG ECUs. Integrates with the Alientech Cloud file-writing service for HSM-encrypted firmware. This is the workhorse your shop runs 80% of jobs through.
+        </p>
+        <a class="item-link" href="https://www.alientech-tools.com/en/kess3/" target="_blank" rel="noopener">Alientech</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">KESS3 Mercedes Protocol Pack</div>
+          <div class="item-price">$1,500</div>
+        </div>
+        <p class="item-description">
+          Unlocks KESS3 support for Mercedes Bosch MED17, Continental SIM271/SIM4, and MDG1-series ECUs. Without this pack the tool cannot communicate with the Mercedes ECU lineup at all. Required for every Mercedes job you take.
+        </p>
+        <a class="item-link" href="https://www.alientech-tools.com/en/kess3/" target="_blank" rel="noopener">Alientech</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">KESS3 Porsche Protocol Pack</div>
+          <div class="item-price">$1,500</div>
+        </div>
+        <p class="item-description">
+          Adds Porsche DME, PDK transmission, and related ECU support. Covers 911 (991, 992), Cayman, Boxster, Panamera, Cayenne, and Macan. Essential for any Porsche work on your shop floor.
+        </p>
+        <a class="item-link" href="https://www.alientech-tools.com/en/kess3/" target="_blank" rel="noopener">Alientech</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">KESS3 BMW Protocol Pack</div>
+          <div class="item-price">$1,200</div>
+        </div>
+        <p class="item-description">
+          Unlocks all BMW M-car and modern BMW ECU coverage. Needed for F8x, G8x, F90, G90 M-cars plus mainstream models. Complements your bench-flash arsenal for the BMW side of the business.
+        </p>
+        <a class="item-link" href="https://www.alientech-tools.com/en/kess3/" target="_blank" rel="noopener">Alientech</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">KESS3 VAG Protocol Pack</div>
+          <div class="item-price">$1,200</div>
+        </div>
+        <p class="item-description">
+          Covers Audi, VW, Porsche (shared platforms), Bentley, and Lamborghini. Essential for Audi RS tuning and covers the VAG-based Porsche Cayenne/Macan DME and transmission units. Extends your reach across the entire VW Group ecosystem.
+        </p>
+        <a class="item-link" href="https://www.alientech-tools.com/en/kess3/" target="_blank" rel="noopener">Alientech</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">KESS3 Bench Cable Complete Kit</div>
+          <div class="item-price">$2,800</div>
+        </div>
+        <p class="item-description">
+          Per-ECU-family wiring harnesses that connect KESS3 directly to the ECU off the car. Required for bench-mode flashing on locked modern ECUs where OBD access is blocked. Covers Bosch MED17, Continental SIM series, MDG1, and ZF transmission connectors.
+        </p>
+        <a class="item-link" href="https://www.alientech-tools.com/en/kess3/" target="_blank" rel="noopener">Alientech</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">MagicMotorsport Flex Full (Car)</div>
+          <div class="item-price">$5,500</div>
+        </div>
+        <p class="item-description">
+          Secondary flashing tool that covers gaps in KESS3 support, particularly on HSM-protected Mercedes and newer Porsche ECUs. Flex's bench-mode implementation is often the one that works when KESS3 can't authenticate. Redundancy here is essential because different tools crack different ECU generations first.
+        </p>
+        <a class="item-link" href="https://www.magicmotorsport.com/en/products/flex/" target="_blank" rel="noopener">MagicMotorsport</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Flex MB + Porsche + VAG Licenses</div>
+          <div class="item-price">$3,000</div>
+        </div>
+        <p class="item-description">
+          Unlocks Flex for the three critical OEM families. FlexCloud service integration for encrypted file handling is tied to these licenses. Without them the hardware is a paperweight on target vehicles.
+        </p>
+        <a class="item-link" href="https://www.magicmotorsport.com/en/products/flex/" target="_blank" rel="noopener">MagicMotorsport</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Flex Bench Cable Kit</div>
+          <div class="item-price">$1,200</div>
+        </div>
+        <p class="item-description">
+          Flex-specific bench harnesses for off-car ECU work. Design differs from KESS3 cables so you need both. Covers the Mercedes MED17, MDG1, Continental SIM, and Porsche DME pinouts that Flex handles best.
+        </p>
+        <a class="item-link" href="https://www.magicmotorsport.com/en/products/flex/" target="_blank" rel="noopener">MagicMotorsport</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Autotuner Master + Year 1 Subscription</div>
+          <div class="item-price">$4,700</div>
+        </div>
+        <p class="item-description">
+          Third flashing tool providing coverage on ECUs where both KESS3 and Flex fall short. Strongest on some BMW and legacy Bosch platforms. Subscription model means ongoing updates as new HSM breakthroughs arrive from the underground research community.
+        </p>
+        <a class="item-link" href="https://www.auto-tuner.com/" target="_blank" rel="noopener">Autotuner</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">CMD Flash Legacy</div>
+          <div class="item-price">$2,500</div>
+        </div>
+        <p class="item-description">
+          Older but proven Bosch ECU flashing tool. Covers pre-2015 Mercedes, Porsche, and VAG ECUs that newer tools sometimes skip. When a client brings in an older AMG or 997 Turbo, CMD is often the simplest path.
+        </p>
+        <a class="item-link" href="https://www.flashtec.ch/" target="_blank" rel="noopener">Flashtec / CMD</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">FrieF Flasher</div>
+          <div class="item-price">$1,800</div>
+        </div>
+        <p class="item-description">
+          Gray-market tool with unique coverage on specific Mercedes and Porsche ECUs that western tools have not addressed yet. Cheap insurance for the one-off car where nothing else works. Sourced through the tuning underground via your team's relationships.
+        </p>
+        <span class="no-link">Gray market / team relationship</span>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Universal Flying-Lead Probing Set</div>
+          <div class="item-price">$600</div>
+        </div>
+        <p class="item-description">
+          Generic probing harness for unknown ECU pinouts when you need to discover boot-mode pins or power rails. Essential for reverse engineering ECUs where no official bench cable exists. Includes pogo pins, IC clips, and fine-tip probes.
+        </p>
+        <a class="item-link" href="https://www.pomonaelectronics.com/" target="_blank" rel="noopener">Pomona Electronics</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DEALER TOOLS -->
+  <section id="dealer">
+    <div class="section-header">
+      <div class="section-title"><span class="num">02</span>Dealer-Level Diagnostic Hardware</div>
+      <div class="section-subtotal">$20,800</div>
+    </div>
+    <p class="section-description">
+      OEM-grade diagnostic access equivalent to what a factory dealership has. Coding, SCN verification, module programming, live sensor data, and service routines across all target brands. Necessary because file-flashing alone cannot handle many customer requests.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Mercedes SDconnect C6</div>
+          <div class="item-price">$3,500</div>
+        </div>
+        <p class="item-description">
+          Official Mercedes dealer interface for Xentry and DAS. Enables SCN coding that requires Mercedes server verification, variant coding, service resets, and WIS integration. This is the hardware that makes your shop capable of handling anything a Mercedes dealer can handle.
+        </p>
+        <a class="item-link" href="https://aftersales.mercedes-benz.com/" target="_blank" rel="noopener">MB Aftersales</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Porsche PIWIS III</div>
+          <div class="item-price">$2,500</div>
+        </div>
+        <p class="item-description">
+          Dealer-level diagnostic for 991-generation and earlier Porsches including most Cayenne, Panamera, and Macan models. Covers coding, component protection removal, and programming tasks. Sourced as verified gray-market clone through your team network.
+        </p>
+        <span class="no-link">Gray market / verified source</span>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Porsche PIWIS IV</div>
+          <div class="item-price">$3,500</div>
+        </div>
+        <p class="item-description">
+          Required for 992-generation (2020+) Porsche diagnostics. The newer interface uses updated protocols and cloud authentication that PIWIS III cannot access. Without this you cannot service current 911 Turbo S, Taycan, or latest Cayenne models.
+        </p>
+        <span class="no-link">Gray market / verified source</span>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">BMW ICOM Next A+B+C</div>
+          <div class="item-price">$400</div>
+        </div>
+        <p class="item-description">
+          Full BMW dealer diagnostic interface supporting ISTA+ programming and coding. Covers all modern BMW including M-cars, plus Rolls-Royce and Mini derivatives. The three-part kit (A for OBD, B for MOST, C for legacy) ensures no connector type locks you out.
+        </p>
+        <a class="item-link" href="https://www.aliexpress.com/" target="_blank" rel="noopener">AliExpress</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">VAG VAS 6154A</div>
+          <div class="item-price">$600</div>
+        </div>
+        <p class="item-description">
+          Official VW Group dealer interface supporting ODIS for Audi, VW, Skoda, SEAT, Bentley, and Lamborghini. Enables SFD (Software Feature Data) unlocks, retrofit coding, and component matching. Required for any dealer-level VAG work.
+        </p>
+        <a class="item-link" href="https://erwin.volkswagen.de/" target="_blank" rel="noopener">VW ERWIN</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">VCDS HEX-V2 Unlimited</div>
+          <div class="item-price">$500</div>
+        </div>
+        <p class="item-description">
+          Community-standard VAG diagnostic tool from Ross-Tech. Much faster for enthusiast-level coding tasks than ODIS. Used alongside VAS 6154A depending on job complexity. Unlimited VIN license is essential for a commercial shop.
+        </p>
+        <a class="item-link" href="https://www.ross-tech.com/vcds/" target="_blank" rel="noopener">Ross-Tech</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Autel MaxiSys Ultra EV</div>
+          <div class="item-price">$4,500</div>
+        </div>
+        <p class="item-description">
+          Universal coverage diagnostic tablet with dedicated EV battery diagnostic capability and built-in ADAS calibration support. Covers every OEM including ones outside your core focus (Japanese, Korean, American). The EV features are critical for hybrid and electric work including your 2026 C63's hybrid system.
+        </p>
+        <a class="item-link" href="https://www.autel.com/product/188.html" target="_blank" rel="noopener">Autel</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Launch X-431 PAD VII</div>
+          <div class="item-price">$3,500</div>
+        </div>
+        <p class="item-description">
+          Secondary universal diagnostic tablet with strong Asian vehicle coverage. Serves as backup when Autel software fails on specific modules and for jobs outside your core German focus. Having two universal tools means downtime never kills a customer appointment.
+        </p>
+        <a class="item-link" href="https://www.x431.com/" target="_blank" rel="noopener">Launch X-431</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Bosch MTS 6513 J2534 Pass-Thru</div>
+          <div class="item-price">$1,800</div>
+        </div>
+        <p class="item-description">
+          SAE J2534-compliant pass-thru device for using OEM software directly with the car. Required for official Mercedes Xentry Pass Thru, Porsche PPN, and BMW ISTA-P online programming sessions. The universal standard that every OEM's pass-thru ecosystem speaks.
+        </p>
+        <a class="item-link" href="https://www.boschdiagnostics.com/" target="_blank" rel="noopener">Bosch Diagnostics</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- KEY PROGRAMMING -->
+  <section id="keys">
+    <div class="section-header">
+      <div class="section-title"><span class="num">03</span>Key Programming & Immobilizer</div>
+      <div class="section-subtotal">$32,000</div>
+    </div>
+    <p class="section-description">
+      Full capability for cutting and programming keys, immobilizer work, airbag crash data reset, instrument cluster programming, and stolen-vehicle recovery. Key work is high-margin service revenue and complements tuning perfectly. These tools cover every lock protocol on every target brand.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Abrites AVDI + MB Full License</div>
+          <div class="item-price">$4,300</div>
+        </div>
+        <p class="item-description">
+          The professional standard for Mercedes key programming including FBS3 and FBS4 (current generation). Enables all-keys-lost scenarios, key generation from EIS data, and dashboard work. The MB license unlocks the deepest Mercedes functionality available outside the factory.
+        </p>
+        <a class="item-link" href="https://abrites.com/" target="_blank" rel="noopener">Abrites</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Abrites Porsche Full License</div>
+          <div class="item-price">$2,500</div>
+        </div>
+        <p class="item-description">
+          Covers Porsche immobilizer and key programming across PCM3, PCM4, and PCM5 systems. Handles current 992-generation Porsche with its updated security architecture. Essential for the Porsche side of your business.
+        </p>
+        <a class="item-link" href="https://abrites.com/" target="_blank" rel="noopener">Abrites</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Abrites VAG Full License</div>
+          <div class="item-price">$2,000</div>
+        </div>
+        <p class="item-description">
+          Audi, VW, Bentley, and Lamborghini key programming including MQB and MLB platform immobilizer systems. Handles component protection and virginizing for stolen or salvage cars. Works with the VAS 6154A for a complete VAG workflow.
+        </p>
+        <a class="item-link" href="https://abrites.com/" target="_blank" rel="noopener">Abrites</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Abrites BMW Full License</div>
+          <div class="item-price">$2,500</div>
+        </div>
+        <p class="item-description">
+          BMW and Mini key programming, ISN (Individual Serial Number) reading, and CAS/FEM/BDC module work. Covers F-chassis and G-chassis generations including current M-cars. Required for any BMW key job beyond basic cloning.
+        </p>
+        <a class="item-link" href="https://abrites.com/" target="_blank" rel="noopener">Abrites</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Abrites Crash Data License</div>
+          <div class="item-price">$800</div>
+        </div>
+        <p class="item-description">
+          Reads and clears crash data from airbag control modules across all supported brands. Critical service for accident-rebuilt cars and collision repair shops that send you work. Often pays for itself within the first few jobs at $150-300 per reset.
+        </p>
+        <a class="item-link" href="https://abrites.com/" target="_blank" rel="noopener">Abrites</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">CGDI MB Full Kit</div>
+          <div class="item-price">$1,500</div>
+        </div>
+        <p class="item-description">
+          Dedicated Mercedes FBS4 key programmer optimized for speed on current-generation W205, W213, W222, W223 and AMG equivalents. Faster than Abrites for many routine FBS4 jobs. Redundancy in key tools means zero downtime on customer appointments.
+        </p>
+        <a class="item-link" href="https://www.cgdishop.com/" target="_blank" rel="noopener">CGDI Shop</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">VVDI MB BGA Tool</div>
+          <div class="item-price">$1,200</div>
+        </div>
+        <p class="item-description">
+          Xhorse Mercedes key programmer with strength in reading EIS (Electronic Ignition Switch) data directly and password calculation. Often succeeds on EIS units where other tools fail. Pairs with Xhorse's broader key ecosystem for cost-efficient coverage.
+        </p>
+        <a class="item-link" href="https://www.xhorse.com/" target="_blank" rel="noopener">Xhorse</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Autel IM608 Pro II + APB112 + G-Box2</div>
+          <div class="item-price">$3,500</div>
+        </div>
+        <p class="item-description">
+          Autel's flagship universal key programmer with strong coverage across all brands. Includes the APB112 transponder tester and G-Box2 accelerator for BMW and Mercedes all-keys-lost scenarios. Also handles ECU remapping and basic diagnostics as a bonus.
+        </p>
+        <a class="item-link" href="https://www.autel.com/product/178.html" target="_blank" rel="noopener">Autel</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Xhorse Key Tool Plus Pad</div>
+          <div class="item-price">$1,800</div>
+        </div>
+        <p class="item-description">
+          All-in-one tablet for transponder cloning, remote generation, and smart key programming. Works with Xhorse universal remote keys to save customers money vs. OEM replacements. Mobile form factor enables on-site and dealer partnership work.
+        </p>
+        <a class="item-link" href="https://www.xhorse.com/" target="_blank" rel="noopener">Xhorse</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Xhorse Condor XC-Mini Plus II Cutter</div>
+          <div class="item-price">$2,500</div>
+        </div>
+        <p class="item-description">
+          Automatic laser and high-security key cutting machine covering all European and Asian key profiles. Required hardware for any shop that cuts physical keys (not just program them). Produces dealer-quality cuts for Mercedes HU64, BMW HU92, and Porsche/VAG profiles.
+        </p>
+        <a class="item-link" href="https://www.xhorse.com/" target="_blank" rel="noopener">Xhorse</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Yanhua ACDP Master + Full Modules</div>
+          <div class="item-price">$4,500</div>
+        </div>
+        <p class="item-description">
+          Specialized BMW and Mercedes module programmer using clip-on no-solder connections to MCU chips. Critical for BMW ISN reading, airbag reset, cluster work, and FRM footwell module repair. Complements Abrites with capabilities neither alone provides.
+        </p>
+        <a class="item-link" href="https://www.yanhua-tech.com/" target="_blank" rel="noopener">Yanhua</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Lonsdor K518ISE + JLR License</div>
+          <div class="item-price">$1,500</div>
+        </div>
+        <p class="item-description">
+          Strong coverage on Asian vehicles and Jaguar Land Rover. Extends your shop reach beyond the core German focus when customers bring in secondary vehicles. JLR work is particularly profitable because few shops support it.
+        </p>
+        <a class="item-link" href="https://www.lonsdor.com/" target="_blank" rel="noopener">Lonsdor</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">CG100 PROG III Full</div>
+          <div class="item-price">$1,400</div>
+        </div>
+        <p class="item-description">
+          Dedicated airbag module repair and cluster mileage work tool. Reads EEPROM directly via clip-on and on-board connections. Used for accident-rebuild reset work and cluster replacement after factory-level damage, extending services collision shops will send you.
+        </p>
+        <a class="item-link" href="https://www.cgdishop.com/" target="_blank" rel="noopener">CGDI Shop</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Transponder Key Starter Inventory</div>
+          <div class="item-price">$2,000</div>
+        </div>
+        <p class="item-description">
+          Stock of OEM-spec blank keys, Xhorse universal remotes, and transponder chips for common Mercedes HU64, BMW HU92, Porsche HU66, and VAG HU66 blades. Having inventory on hand means same-day key service rather than ordering parts per job. Inventory turns drive margin.
+        </p>
+        <a class="item-link" href="https://www.keyless2go.com/" target="_blank" rel="noopener">Keyless2Go</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CHIP OFF -->
+  <section id="chipoff">
+    <div class="section-header">
+      <div class="section-title"><span class="num">04</span>Chip-Off, BDM, Direct Flash</div>
+      <div class="section-subtotal">$15,750</div>
+    </div>
+    <p class="section-description">
+      Physical access to ECU flash memory when OBD and bench modes are both locked. Reflows and replaces BGA chips, reads memory directly with programmers, and probes JTAG/BDM pins. This is the "when all else fails" capability layer that separates a real shop from an OBD tuner.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">DimSport BDM100 + New Genius Frame</div>
+          <div class="item-price">$2,800</div>
+        </div>
+        <p class="item-description">
+          Background Debug Mode programming frame for direct ECU flash access without chip removal. Works on older Bosch and Siemens ECUs where chip-off is overkill but bench flash is blocked. Much less invasive than desoldering when the ECU supports it.
+        </p>
+        <a class="item-link" href="https://www.dimsport.it/" target="_blank" rel="noopener">DimSport</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">PCMFlash (PCMtuner)</div>
+          <div class="item-price">$1,200</div>
+        </div>
+        <p class="item-description">
+          Multi-protocol ECU tool with unique coverage on Russian-sourced protocols and specific OBD-to-bench transitions. Often handles ECUs that premium western tools have not added yet. Good value redundancy for the few hundred dollars it costs.
+        </p>
+        <a class="item-link" href="https://pcmflash.ru/en/" target="_blank" rel="noopener">PCMFlash</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Xgecu T48 + BGA Adapter Set</div>
+          <div class="item-price">$400</div>
+        </div>
+        <p class="item-description">
+          Universal IC programmer supporting over 34,000 chips including the TSOP, PLCC, and BGA packages used in ECU flash memory. Required when you've desoldered a chip and need to read or write it externally. Cheap for the breadth of coverage.
+        </p>
+        <a class="item-link" href="https://www.xgecu.com/" target="_blank" rel="noopener">Xgecu</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Dediprog SF600Plus</div>
+          <div class="item-price">$800</div>
+        </div>
+        <p class="item-description">
+          Professional-grade SPI serial flash programmer with in-circuit programming capability. Can read and write flash chips while still soldered to the ECU board when conditions allow. Much more reliable than Xgecu for production work and specialty automotive flash chips.
+        </p>
+        <a class="item-link" href="https://www.dediprog.com/" target="_blank" rel="noopener">Dediprog</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Segger J-Link Pro</div>
+          <div class="item-price">$1,200</div>
+        </div>
+        <p class="item-description">
+          Premium JTAG and SWD debug probe for direct processor-level access to ECU microcontrollers. Required for deep reverse engineering, bootloader work, and custom firmware development. The Pro version supports unlimited targets and Ethernet connectivity for permanent bench install.
+        </p>
+        <a class="item-link" href="https://www.segger.com/products/debug-probes/j-link/models/j-link-pro/" target="_blank" rel="noopener">Segger</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">JTAGulator</div>
+          <div class="item-price">$200</div>
+        </div>
+        <p class="item-description">
+          Pin-discovery tool that automatically identifies JTAG and UART pinouts on unknown PCBs. When you're reverse engineering an unfamiliar ECU, this saves hours of manual probing. Essential for any shop doing research beyond documented ECU families.
+        </p>
+        <a class="item-link" href="https://www.grandideastudio.com/jtagulator/" target="_blank" rel="noopener">Grand Idea Studio</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">JBC CD-1BQE Soldering Station</div>
+          <div class="item-price">$900</div>
+        </div>
+        <p class="item-description">
+          Industry-standard precision soldering for ECU board work. Fast tip recovery and thermal stability make the difference between clean repair and destroyed traces. JBC is what professional automotive electronics repair shops use for a reason.
+        </p>
+        <a class="item-link" href="https://www.jbctools.com/cd-1bqe-soldering-station-product-3-category-1-menu-1.html" target="_blank" rel="noopener">JBC Tools</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Quick 861DW Hot Air Rework</div>
+          <div class="item-price">$200</div>
+        </div>
+        <p class="item-description">
+          Bench hot-air station for removing and reflowing surface-mount components. Good for SOIC, QFP, and smaller QFN work where you don't need a full BGA station. Budget-friendly workhorse that every bench should have alongside the premium station.
+        </p>
+        <a class="item-link" href="https://www.quick-global.com/" target="_blank" rel="noopener">Quick Tool</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Honton HT-R490 BGA Rework Station</div>
+          <div class="item-price">$4,500</div>
+        </div>
+        <p class="item-description">
+          Professional BGA rework with preheater, top heater, and optical alignment camera. Required for removing and replacing the processors and flash memory BGA packages inside modern ECUs. Without this, chip-off work on modern Mercedes and Porsche ECUs is destructive.
+        </p>
+        <a class="item-link" href="https://www.hontonbga.com/" target="_blank" rel="noopener">Honton</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">JBC JTSE-2B Preheater Plate</div>
+          <div class="item-price">$700</div>
+        </div>
+        <p class="item-description">
+          Board preheater that brings the PCB to 150-200C before focused hot-air work. Prevents thermal shock and warping during rework. Essential for BGA work to get clean solder ball reflow without cooking adjacent components.
+        </p>
+        <a class="item-link" href="https://www.jbctools.com/" target="_blank" rel="noopener">JBC Tools</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Amscope SM-4NTP Stereo Microscope</div>
+          <div class="item-price">$800</div>
+        </div>
+        <p class="item-description">
+          Trinocular stereo microscope with 7-45x zoom and camera mount for documentation. Essential for BGA inspection, fine-pitch soldering, and chip-off verification. Without stereo vision you cannot reliably work at the scale modern ECUs demand.
+        </p>
+        <a class="item-link" href="https://amscope.com/products/sm-4ntp" target="_blank" rel="noopener">Amscope</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">FLIR C5 Thermal Camera</div>
+          <div class="item-price">$400</div>
+        </div>
+        <p class="item-description">
+          Pocket thermal imager for spotting hot components on live ECUs, diagnosing power supply issues, and verifying BGA reflow temperatures. Also useful for diagnosing engine electrical issues on the shop floor. Surprisingly versatile tool at this price point.
+        </p>
+        <a class="item-link" href="https://www.flir.com/products/c5/" target="_blank" rel="noopener">FLIR</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">BGA Reballing Kit + Solder Balls</div>
+          <div class="item-price">$400</div>
+        </div>
+        <p class="item-description">
+          Stencils, flux, and lead-free solder balls needed to reball BGA chips before reinstallation. Without reballing, removed BGA chips cannot be reinstalled. Include stencils for the most common BGA footprints used in Bosch, Continental, and Siemens ECUs.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/s?k=BGA+reballing+kit" target="_blank" rel="noopener">Amazon</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Dumont Precision Tweezers</div>
+          <div class="item-price">$250</div>
+        </div>
+        <p class="item-description">
+          Swiss-made anti-static tweezers in multiple tip styles for handling fine-pitch components and BGA chips. Cheap tweezers bend tips and damage parts. This set lasts a career if treated well and is what every professional bench uses.
+        </p>
+        <a class="item-link" href="https://www.dumonttweezers.com/" target="_blank" rel="noopener">Dumont</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">ZIF Test Socket Full Set</div>
+          <div class="item-price">$600</div>
+        </div>
+        <p class="item-description">
+          Zero-insertion-force adapter sockets for TSOP48, BGA64, BGA100, BGA144, and common automotive flash packages. Used with the Xgecu T48 and Dediprog to read chips externally without destructive desoldering. Essential for non-destructive chip testing during reverse engineering.
+        </p>
+        <a class="item-link" href="https://www.xgecu.com/" target="_blank" rel="noopener">Xgecu</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Flux, Solder, Paste, Wick, ChipQuik</div>
+          <div class="item-price">$400</div>
+        </div>
+        <p class="item-description">
+          Consumables for rework. Includes Kester leaded solder (easier to work with than lead-free for rework), Amtech flux, ChipQuik low-temp removal alloy, and solder wick. ChipQuik specifically is magic for removing surface-mount components without heat damage.
+        </p>
+        <a class="item-link" href="https://www.chipquik.com/" target="_blank" rel="noopener">ChipQuik</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SIGNAL ANALYSIS -->
+  <section id="signal">
+    <div class="section-header">
+      <div class="section-title"><span class="num">05</span>Signal Analysis & Protocol Engineering</div>
+      <div class="section-subtotal">$48,460</div>
+    </div>
+    <p class="section-description">
+      Full visibility into every electrical signal on the car. CAN, CAN-FD, LIN, FlexRay, automotive Ethernet, plus general-purpose oscilloscope and logic analyzer work. Vector CANoe is the tool factory engineers use to design these networks. With this stack you can reverse engineer any protocol on any car.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Siglent SDS2354X HD Oscilloscope</div>
+          <div class="item-price">$2,400</div>
+        </div>
+        <p class="item-description">
+          12-bit, 350MHz, 4-channel oscilloscope with deep memory and automotive decode options. High bit depth is critical for capturing subtle signal integrity issues on CAN, LIN, and injector waveforms. Best price-to-performance ratio in its class.
+        </p>
+        <a class="item-link" href="https://www.siglentna.com/digital-oscilloscopes/sds2000x-hd-series-12bit-high-resolution-digital-oscilloscopes/" target="_blank" rel="noopener">Siglent</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Saleae Logic Pro 16</div>
+          <div class="item-price">$1,500</div>
+        </div>
+        <p class="item-description">
+          16-channel USB logic analyzer with excellent automotive protocol decoders. Used for simultaneous multi-bus analysis when you need to see CAN, LIN, and SPI at the same time. Saleae's software is genuinely best-in-class and the hardware is quality.
+        </p>
+        <a class="item-link" href="https://www.saleae.com/products/saleae-logic-pro-16" target="_blank" rel="noopener">Saleae</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Kvaser Leaf Pro HS v2</div>
+          <div class="item-price">$550</div>
+        </div>
+        <p class="item-description">
+          Professional CAN and CAN-FD interface with 64-bit timestamp resolution. Used for precise automotive network logging and ECU simulation. Kvaser is the industry standard for automotive network interfaces and their software ecosystem is excellent.
+        </p>
+        <a class="item-link" href="https://www.kvaser.com/product/kvaser-leaf-pro-hs-v2/" target="_blank" rel="noopener">Kvaser</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">PEAK PCAN-USB FD</div>
+          <div class="item-price">$290</div>
+        </div>
+        <p class="item-description">
+          Budget-friendly CAN and CAN-FD adapter from PEAK-System, a German automotive industry standard. Used as the secondary CAN interface for Pi-based diagnostic deployments and workshop bench testing. Compatible with every major automotive network analysis tool.
+        </p>
+        <a class="item-link" href="https://www.peak-system.com/PCAN-USB-FD.365.0.html" target="_blank" rel="noopener">PEAK-System</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Intrepid neoVI FIRE 3</div>
+          <div class="item-price">$6,500</div>
+        </div>
+        <p class="item-description">
+          All-in-one automotive network interface supporting CAN, CAN-FD, LIN, FlexRay, Automotive Ethernet, and K-Line simultaneously. This is one box that replaces five specialized interfaces and is what OEM engineering shops use. Essential for multi-bus gateway work and complex protocol reverse engineering.
+        </p>
+        <a class="item-link" href="https://intrepidcs.com/products/automotive-ethernet-tools/neovi-fire-3/" target="_blank" rel="noopener">Intrepid Control Systems</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Intrepid RAD-Moon</div>
+          <div class="item-price">$1,800</div>
+        </div>
+        <p class="item-description">
+          100BASE-T1 and 1000BASE-T1 automotive Ethernet media converter. Required because newer cars use automotive-specific Ethernet that standard PC network cards cannot speak. Critical for any 2020+ Mercedes, BMW, or Porsche work involving ADAS or infotainment networks.
+        </p>
+        <a class="item-link" href="https://intrepidcs.com/products/automotive-ethernet-tools/rad-moon/" target="_blank" rel="noopener">Intrepid Control Systems</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Vector VN1640A</div>
+          <div class="item-price">$2,200</div>
+        </div>
+        <p class="item-description">
+          Vector's professional CAN-FD interface that integrates natively with CANoe and CANalyzer. Industry standard in OEM automotive engineering. Required if you want the best Vector tool integration and long-term network analysis stability.
+        </p>
+        <a class="item-link" href="https://www.vector.com/int/en/products/products-a-z/hardware/vn1600-network-interfaces/" target="_blank" rel="noopener">Vector</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Vector CANalyzer.pro</div>
+          <div class="item-price">$8,500</div>
+        </div>
+        <p class="item-description">
+          Professional protocol analyzer used across the automotive industry for CAN, LIN, FlexRay, and Ethernet analysis. Supports DBC, LDF, FIBEX, and ODX files for decoded traffic views. This is what Mercedes, BMW, and Porsche engineers use when designing their own networks.
+        </p>
+        <a class="item-link" href="https://www.vector.com/int/en/products/products-a-z/software/canalyzer/" target="_blank" rel="noopener">Vector</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Vector CANoe Full</div>
+          <div class="item-price">$18,000</div>
+        </div>
+        <p class="item-description">
+          Full automotive network simulation and test environment. Simulates entire vehicle networks including missing ECUs, enabling development and testing of custom modules without a complete physical car. This is what separates god-tier from professional tuner and enables custom ECU development.
+        </p>
+        <a class="item-link" href="https://www.vector.com/int/en/products/products-a-z/software/canoe/" target="_blank" rel="noopener">Vector</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">HackRF One + Antennas</div>
+          <div class="item-price">$500</div>
+        </div>
+        <p class="item-description">
+          Wide-spectrum software-defined radio for analyzing wireless key fob signals, TPMS transmissions, and other automotive RF. Enables rolling code analysis, key fob cloning research, and diagnostic for remote entry issues. Essential for any key programming capability extending into RF territory.
+        </p>
+        <a class="item-link" href="https://greatscottgadgets.com/hackrf/" target="_blank" rel="noopener">Great Scott Gadgets</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Intrepid Vehicle Spy 3 Professional</div>
+          <div class="item-price">$3,500</div>
+        </div>
+        <p class="item-description">
+          Automotive-specific protocol analysis software that pairs with the neoVI FIRE 3. Handles UDS diagnostic services, seed-key workflows, and ECU flashing at the protocol level. Often faster for quick reverse engineering than Vector's more formal tooling.
+        </p>
+        <a class="item-link" href="https://intrepidcs.com/products/software/vehicle-spy/" target="_blank" rel="noopener">Intrepid Control Systems</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Rigol DSA815 Spectrum Analyzer</div>
+          <div class="item-price">$1,400</div>
+        </div>
+        <p class="item-description">
+          1.5GHz spectrum analyzer for RF debugging, key fob frequency verification, and EMI diagnostics. Complements the HackRF with higher-end measurement precision for serious RF characterization work. Used when you need calibrated measurements not just capture.
+        </p>
+        <a class="item-link" href="https://www.rigolna.com/products/spectrum-analyzers/dsa800/" target="_blank" rel="noopener">Rigol</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Fluke 117 Multimeter + i410 Clamp</div>
+          <div class="item-price">$520</div>
+        </div>
+        <p class="item-description">
+          Industrial-grade multimeter with AC/DC current clamp for automotive electrical diagnostics. CAT III 600V rating ensures safe measurement even on hybrid high-voltage circuits. Fluke reliability means your measurements are trustworthy for decision-making.
+        </p>
+        <a class="item-link" href="https://www.fluke.com/en-us/product/electrical-testing/digital-multimeters/fluke-117" target="_blank" rel="noopener">Fluke</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Harness Breakout Boxes (MB, Porsche)</div>
+          <div class="item-price">$800</div>
+        </div>
+        <p class="item-description">
+          Per-brand breakout boards that break every wire in a customer harness out to test points. Enables probing any signal while the module is live and running. Much safer than back-probing connector pins and eliminates most intermittent connection diagnostic nightmares.
+        </p>
+        <a class="item-link" href="https://www.autel.com/" target="_blank" rel="noopener">Autel / OEM specialist</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HSM RESEARCH -->
+  <section id="hsm">
+    <div class="section-header">
+      <div class="section-title"><span class="num">06</span>HSM Research & Independent Crypto</div>
+      <div class="section-subtotal">$20,000</div>
+    </div>
+    <p class="section-description">
+      Side-channel analysis and fault injection equipment for breaking HSM-protected ECU firmware without waiting for anyone else. This is what elevates you from downstream tuner (dependent on file-writing services) to upstream source. The community uses these exact tools to crack each new ECU generation.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">ChipWhisperer-Husky</div>
+          <div class="item-price">$1,700</div>
+        </div>
+        <p class="item-description">
+          Power-analysis side-channel attack platform. Captures micro-variations in power consumption during crypto operations to extract HSM keys. This is the tool Colin O'Flynn designed that unlocked automotive security research for mere mortals.
+        </p>
+        <a class="item-link" href="https://www.newae.com/products/nae-cwhusky" target="_blank" rel="noopener">NewAE Technology</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">ChipShouter EM Fault Injection</div>
+          <div class="item-price">$6,500</div>
+        </div>
+        <p class="item-description">
+          Electromagnetic pulse fault injection tool that glitches microcontrollers during secure boot to bypass authentication. When combined with ChipWhisperer's analysis capability, this is the complete HSM attack stack. Real automotive security researchers use this exact combo to publish CVEs.
+        </p>
+        <a class="item-link" href="https://www.newae.com/products/nae-cw520" target="_blank" rel="noopener">NewAE Technology</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">PicoScope 6824E</div>
+          <div class="item-price">$4,500</div>
+        </div>
+        <p class="item-description">
+          8-channel, 500MHz PC-based oscilloscope with deep memory required for side-channel trace capture. Normal bench oscilloscopes lack the memory depth to capture full crypto operations at resolution needed for statistical analysis. This scope sets the floor for serious SCA work.
+        </p>
+        <a class="item-link" href="https://www.picotech.com/oscilloscope/6000/picoscope-6000e-series" target="_blank" rel="noopener">Pico Technology</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Keithley 2280S Low-Noise DC Supply</div>
+          <div class="item-price">$2,500</div>
+        </div>
+        <p class="item-description">
+          Ultra-low-noise precision DC power supply required for clean power-analysis measurements on target ECUs. Supply noise contaminates side-channel traces and destroys attack efficacy. Keithley is the lab-grade standard used in published security research.
+        </p>
+        <a class="item-link" href="https://www.tek.com/en/datasheet/series-2280s-precision-measurement-dc-power-supplies" target="_blank" rel="noopener">Tektronix</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Langer EM Probe Set</div>
+          <div class="item-price">$3,000</div>
+        </div>
+        <p class="item-description">
+          H-field and E-field near-field probes for localized electromagnetic analysis of MCU die activity. Unlike generic antennas, Langer probes are calibrated for precise measurement at chip scales. Required for EM-side-channel attacks where power analysis is blocked.
+        </p>
+        <a class="item-link" href="https://www.langer-emv.com/en/category/near-field-probes-ic-scanner/143" target="_blank" rel="noopener">Langer EMV</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">JBC CD-B Constant-Temp Station</div>
+          <div class="item-price">$1,800</div>
+        </div>
+        <p class="item-description">
+          Ultra-stable soldering for preparing target ECUs for side-channel attack (trigger-wire installation, chip decapping prep, probe contact points). Small temperature variation during these fine-pitch preparations destroys the attack surface. Precision matters at this level.
+        </p>
+        <a class="item-link" href="https://www.jbctools.com/cd-b-soldering-station-product-3-category-1-menu-1.html" target="_blank" rel="noopener">JBC Tools</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- BENCH TEST -->
+  <section id="bench">
+    <div class="section-header">
+      <div class="section-title"><span class="num">07</span>ECU Bench Test Infrastructure</div>
+      <div class="section-subtotal">$5,950</div>
+    </div>
+    <p class="section-description">
+      Simulate a full running car on a bench. Trigger a customer ECU with fake crank/cam signals, fake O2 readings, and a simulated CAN bus to validate firmware changes before reinstalling the ECU in the actual vehicle. Catches 95% of bad flashes before they become warranty nightmares.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Universal ECU Test Stand + Harnesses</div>
+          <div class="item-price">$2,900</div>
+        </div>
+        <p class="item-description">
+          Benchtop fixture that holds ECUs and connects them to simulated inputs and power. Includes multi-brand harness adapters for Mercedes, Porsche, BMW, and VAG ECU connectors. Lets you validate a flashed ECU is working correctly before reinstalling in the car.
+        </p>
+        <a class="item-link" href="https://www.magicmotorsport.com/" target="_blank" rel="noopener">MagicMotorsport</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Crank/Cam Signal Simulator</div>
+          <div class="item-price">$400</div>
+        </div>
+        <p class="item-description">
+          Generates realistic crankshaft and camshaft position signals to trick a bench ECU into thinking the engine is running. Essential for verifying fuel and ignition maps behave correctly before in-vehicle installation. Saves countless tow-truck calls for bad-flash recoveries.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/s?k=crankshaft+position+sensor+simulator" target="_blank" rel="noopener">Amazon</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Injector Simulator Bank</div>
+          <div class="item-price">$200</div>
+        </div>
+        <p class="item-description">
+          Resistive load bank that substitutes for real fuel injectors during bench testing. Prevents "injector circuit fault" DTCs during flash verification and allows the ECU to run its full fuel-calculation logic. Essential companion to the crank/cam simulator.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/s?k=injector+load+simulator" target="_blank" rel="noopener">Amazon</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Wideband O2 Simulator</div>
+          <div class="item-price">$150</div>
+        </div>
+        <p class="item-description">
+          Simulates O2 sensor feedback signals so a bench ECU sees a plausible air-fuel ratio during testing. Required to test closed-loop fueling logic without a running engine. Small part but prevents the ECU from triggering open-loop fault modes that hide real issues.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/" target="_blank" rel="noopener">Amazon</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Rigol DP832 Triple-Output PSU</div>
+          <div class="item-price">$700</div>
+        </div>
+        <p class="item-description">
+          Programmable triple-output bench power supply for running ECUs at precisely controlled voltages during bench testing. Essential for verifying behavior across the full 9-16V range a car actually sees. Also used for powering custom piggyback prototypes.
+        </p>
+        <a class="item-link" href="https://www.rigolna.com/products/dc-power-loads/dp800/" target="_blank" rel="noopener">Rigol</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">CAN Gateway for Bench Simulation</div>
+          <div class="item-price">$200</div>
+        </div>
+        <p class="item-description">
+          Standalone CAN replay device that plays back previously-captured vehicle CAN traffic. Lets a bench ECU see realistic CAN messages from other modules that aren't present on the bench. Without this, the ECU sits in fault mode because it can't find the cluster, ABS, or gateway.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/" target="_blank" rel="noopener">Amazon / specialty</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Load Bank / Alternator Simulator</div>
+          <div class="item-price">$300</div>
+        </div>
+        <p class="item-description">
+          Provides realistic electrical load during bench testing to simulate real vehicle charging behavior. ECUs behave differently under load than with just logic-level current draw. Small investment that catches voltage-regulation bugs before they reach customer cars.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/" target="_blank" rel="noopener">Amazon</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">MB/Porsche Bench Harnesses</div>
+          <div class="item-price">$1,100</div>
+        </div>
+        <p class="item-description">
+          Custom-fabricated per-ECU-family bench harnesses that match exact pinouts for Mercedes MED17, Continental SIM, Porsche DME, and VAG Simos units. Required for precise bench simulation without hacking up a stock harness. Your team fabricates or sources through specialist suppliers.
+        </p>
+        <span class="no-link">Custom fabrication / specialist supplier</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CUSTOM DEV -->
+  <section id="custom">
+    <div class="section-header">
+      <div class="section-title"><span class="num">08</span>Custom Hardware Development</div>
+      <div class="section-subtotal">$18,425</div>
+    </div>
+    <p class="section-description">
+      Design and produce your own piggyback modules, custom diagnostic tools, and replacement ECUs. This capability turns one-off shop work into scalable products you can ship worldwide. Bambu printers, pick-and-place, reflow oven, and Altium let you take a PCB from idea to 50-unit production run in-house.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">STM32 + ESP32 Dev Board Inventory</div>
+          <div class="item-price">$275</div>
+        </div>
+        <p class="item-description">
+          Starter boards for prototyping custom automotive modules. STM32 (Nucleo-H7, Nucleo-F4) for CAN-heavy workloads, ESP32-S3 for WiFi/BLE-connected telemetry. These are the silicon building blocks for every custom piggyback you design.
+        </p>
+        <a class="item-link" href="https://www.digikey.com/en/products/filter/development-boards-kits-programmers/evaluation-boards-embedded-mcu-dsp/786" target="_blank" rel="noopener">Digi-Key</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">CAN Transceiver Stock (TJA1051 x50)</div>
+          <div class="item-price">$150</div>
+        </div>
+        <p class="item-description">
+          Automotive-grade CAN transceivers for connecting your custom modules to vehicle networks. NXP TJA1051 and TI TCAN1051 are the standards that every OEM uses. Buying 50 at a time dramatically reduces per-unit cost on prototype runs.
+        </p>
+        <a class="item-link" href="https://www.mouser.com/" target="_blank" rel="noopener">Mouser</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Bambu Lab X1C 3D Printer</div>
+          <div class="item-price">$1,200</div>
+        </div>
+        <p class="item-description">
+          Enclosed, high-speed 3D printer for prototyping enclosures, bracket fixtures, and custom parts. Auto-calibration and multi-material support mean you can iterate faster than with older Prusa-style printers. Every custom product needs an enclosure and this prints them overnight.
+        </p>
+        <a class="item-link" href="https://bambulab.com/en/x1" target="_blank" rel="noopener">Bambu Lab</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Prusa XL</div>
+          <div class="item-price">$2,000</div>
+        </div>
+        <p class="item-description">
+          Large-format 3D printer for fixtures, test stands, and vehicle-integration prototypes that don't fit on the X1C bed. CoreXY with 360x360x360mm build volume handles intake, airbox, and harness-routing prototype work. Complements the Bambu for serious product development.
+        </p>
+        <a class="item-link" href="https://www.prusa3d.com/category/original-prusa-xl/" target="_blank" rel="noopener">Prusa Research</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">PulsarPro Reflow Oven</div>
+          <div class="item-price">$1,800</div>
+        </div>
+        <p class="item-description">
+          Precision controlled reflow oven with programmable profiles for lead-free solder paste. Required for small-batch PCB production with surface-mount components. Manual reflow with hot air works for prototypes but ovens produce consistent, repeatable results for customer-grade product.
+        </p>
+        <a class="item-link" href="https://pulsarpro.com/" target="_blank" rel="noopener">PulsarPro</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Neoden TM-245P Pick-and-Place</div>
+          <div class="item-price">$5,000</div>
+        </div>
+        <p class="item-description">
+          Tabletop pick-and-place machine for automated SMT component placement on custom PCBs. Enables small production runs (50-500 units) without manual placement. Paired with your reflow oven, this is your in-shop manufacturing line for piggyback modules.
+        </p>
+        <a class="item-link" href="https://neodenusa.com/products/neoden-tm-245p-pick-and-place-machine" target="_blank" rel="noopener">Neoden USA</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Altium Designer Perpetual + Year 1</div>
+          <div class="item-price">$7,000</div>
+        </div>
+        <p class="item-description">
+          Professional PCB design software used by serious hardware product companies. Handles schematic capture, layout, 3D integration, and manufacturing output in one workflow. Free alternative KiCad works but Altium saves significant time on complex designs when billing customer work.
+        </p>
+        <a class="item-link" href="https://www.altium.com/altium-designer" target="_blank" rel="noopener">Altium</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">PCB Prototyping Budget (JLCPCB)</div>
+          <div class="item-price">$500</div>
+        </div>
+        <p class="item-description">
+          Credit allocation for JLCPCB manufacturing. Custom PCBs run $5-50 for small batches with 3-7 day turnaround including SMT assembly. This budget covers your first 8-15 prototype iterations across multiple product designs. Essential ongoing operating cost for hardware R&D.
+        </p>
+        <a class="item-link" href="https://jlcpcb.com/" target="_blank" rel="noopener">JLCPCB</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Enclosure + Component Inventory</div>
+          <div class="item-price">$500</div>
+        </div>
+        <p class="item-description">
+          Starter inventory of Hammond and Takachi automotive-grade enclosures, automotive connectors (TE, Deutsch, Molex), and passives. Having stock on hand means you can build a prototype the day you decide to start one instead of waiting for deliveries.
+        </p>
+        <a class="item-link" href="https://www.mouser.com/c/enclosures/" target="_blank" rel="noopener">Mouser</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WORKSTATION -->
+  <section id="workstation">
+    <div class="section-header">
+      <div class="section-title"><span class="num">09</span>Workstations & Infrastructure</div>
+      <div class="section-subtotal">$26,100</div>
+    </div>
+    <p class="section-description">
+      Compute, storage, and network infrastructure for the shop. Local AI stack on Mac Studio + RTX 4090 enables uncensored model use for reverse engineering, keeps customer ECU data on-prem, and powers your agent workflow. Pi fleet deploys diagnostic capability to every customer car via Tailscale.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Mac Studio M2 Ultra 192GB</div>
+          <div class="item-price">$6,500</div>
+        </div>
+        <p class="item-description">
+          Primary workstation running your local AI stack at 70B parameter scale. Unified memory architecture handles large uncensored models (Dolphin-Mixtral, Nous-Hermes) at usable speed for Ghidra-assisted reverse engineering and firmware analysis. Also runs all macOS-specific tuning software.
+        </p>
+        <a class="item-link" href="https://www.apple.com/shop/buy-mac/mac-studio" target="_blank" rel="noopener">Apple</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">RTX 4090 Windows Workstation (i9, 64GB)</div>
+          <div class="item-price">$4,400</div>
+        </div>
+        <p class="item-description">
+          Windows rig for software that requires Windows (KESS3, Flex, WinOLS, Vector CANoe, all OEM tools). 64GB RAM handles multiple VMs for tool isolation. RTX 4090 accelerates any CUDA-dependent analysis workflows and serves as secondary LLM inference box.
+        </p>
+        <a class="item-link" href="https://www.newegg.com/p/pl?d=rtx+4090+workstation" target="_blank" rel="noopener">Newegg</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">2nd RTX 4090 + EPYC Training Rig</div>
+          <div class="item-price">$5,500</div>
+        </div>
+        <p class="item-description">
+          Dedicated AI training and heavy inference workstation. Used for fine-tuning custom LoRAs on automotive corpus (service manuals, DBC files, ECU documentation), running RAG systems over your firmware library, and parallel model serving. EPYC chosen for PCIe lane count over consumer Intel.
+        </p>
+        <a class="item-link" href="https://www.newegg.com/" target="_blank" rel="noopener">Newegg</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Synology DS1522+ NAS + 5x 16TB Drives</div>
+          <div class="item-price">$2,800</div>
+        </div>
+        <p class="item-description">
+          Central storage for ECU firmware archive, customer baselines, and calibration databases with RAID 6 protection. Tailscale-accessible for secure remote work. Firmware libraries accumulate over years and are irreplaceable business assets worth rigorous backup.
+        </p>
+        <a class="item-link" href="https://www.synology.com/en-us/products/DS1522+" target="_blank" rel="noopener">Synology</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Dual 32" 4K Displays (x2 sets)</div>
+          <div class="item-price">$2,000</div>
+        </div>
+        <p class="item-description">
+          Primary and secondary workstation monitors. Four monitors total across two workstations because reverse engineering with Ghidra, WinOLS, and datalogger open simultaneously eats screen real estate. Eye strain on small displays costs more than good monitors over time.
+        </p>
+        <a class="item-link" href="https://www.lg.com/us/monitors/" target="_blank" rel="noopener">LG / BenQ</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">APC 3000VA UPS</div>
+          <div class="item-price">$700</div>
+        </div>
+        <p class="item-description">
+          Battery backup for workstations and NAS. Protects against power loss during ECU flashing which is the most dangerous moment in any tuning workflow. Also provides clean power to sensitive SCA measurement equipment. Non-negotiable insurance.
+        </p>
+        <a class="item-link" href="https://www.apc.com/shop/us/en/products/APC-Smart-UPS-3000VA-LCD-RM-2U-120V/P-SMT3000RM2U" target="_blank" rel="noopener">APC</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">10GbE Network Switch + Cabling</div>
+          <div class="item-price">$400</div>
+        </div>
+        <p class="item-description">
+          Fast LAN between workstations and NAS for moving large firmware files and CAN capture logs at full speed. 1GbE bottlenecks when moving multi-gigabyte datasets. Small investment that accelerates daily workflow noticeably.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/s?k=10gbe+switch+mikrotik" target="_blank" rel="noopener">Amazon / MikroTik</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Ergonomic Chairs (x3)</div>
+          <div class="item-price">$1,500</div>
+        </div>
+        <p class="item-description">
+          Herman Miller Aeron or Steelcase Gesture for long reverse engineering sessions and bench work. Reverse engineering 12-hour days on a cheap chair wrecks your back inside a year. Real investment in team longevity more than tool cost.
+        </p>
+        <a class="item-link" href="https://www.hermanmiller.com/products/seating/office-chairs/aeron-chairs/" target="_blank" rel="noopener">Herman Miller</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Pi 5 Fleet (x10) + CAN + Cables</div>
+          <div class="item-price">$2,300</div>
+        </div>
+        <p class="item-description">
+          Ten Raspberry Pi 5 units with CAN adapters, OBD cables, cases, and power. Deployed as diagnostic devices in shop demo cars, customer loaner installs, and mobile diagnostics. Tailscale-connected fleet means you can read any customer car from anywhere.
+        </p>
+        <a class="item-link" href="https://www.raspberrypi.com/products/raspberry-pi-5/" target="_blank" rel="noopener">Raspberry Pi</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SOFTWARE -->
+  <section id="software">
+    <div class="section-header">
+      <div class="section-title"><span class="num">10</span>Software (Perpetual Licenses)</div>
+      <div class="section-subtotal">$21,800</div>
+    </div>
+    <p class="section-description">
+      Map editing, firmware reverse engineering, and OEM engineering-level access. WinOLS is industry-standard for calibration work, IDA Pro with Tricore/PowerPC modules handles every automotive processor family. Vediamo and DTS Monaco are engineering versions of Mercedes software that expose functionality Xentry hides.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">WinOLS Master + Damos Base</div>
+          <div class="item-price">$3,400</div>
+        </div>
+        <p class="item-description">
+          The industry-standard calibration editing software for automotive ECUs. Opens .bin files, maps tables with Damos annotation, handles checksum correction automatically. Every serious tuning shop uses WinOLS because the alternative (raw hex editing) is impractical at production volume.
+        </p>
+        <a class="item-link" href="https://www.evc.de/en/product/winols/" target="_blank" rel="noopener">EVC Electronic</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">ECM Titanium + Protocol Packs</div>
+          <div class="item-price">$3,500</div>
+        </div>
+        <p class="item-description">
+          Map-editing software with extensive prebuilt driver files for specific ECU variants. Often faster than WinOLS for routine stage tuning because the maps are pre-identified. Complements rather than replaces WinOLS in a real production environment.
+        </p>
+        <a class="item-link" href="https://www.alientech-tools.com/en/ecm-titanium/" target="_blank" rel="noopener">Alientech</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Swiftec</div>
+          <div class="item-price">$800</div>
+        </div>
+        <p class="item-description">
+          Budget-friendly alternative map editor with good checksum support on several common ECU platforms. Used for quick jobs where WinOLS overhead isn't justified. Good redundancy to have when a specific ECU format behaves better in one editor than another.
+        </p>
+        <a class="item-link" href="https://swiftec.es/" target="_blank" rel="noopener">Swiftec</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">IDA Pro Named + Hex-Rays + Tricore + PowerPC</div>
+          <div class="item-price">$6,000</div>
+        </div>
+        <p class="item-description">
+          The industry-standard disassembler and decompiler for reverse engineering binary firmware. Tricore module handles Infineon MCUs used in Bosch/Continental ECUs, PowerPC handles Freescale/NXP units. Essential for deep protocol reverse engineering and custom firmware patches.
+        </p>
+        <a class="item-link" href="https://hex-rays.com/ida-pro/" target="_blank" rel="noopener">Hex-Rays</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Binary Ninja Commercial</div>
+          <div class="item-price">$1,500</div>
+        </div>
+        <p class="item-description">
+          Modern alternative reverse engineering platform with excellent Python scripting API. Strong for automation-heavy workflows where you want to programmatically analyze dozens of firmware variants. Complements IDA Pro for different kinds of analysis tasks.
+        </p>
+        <a class="item-link" href="https://binary.ninja/" target="_blank" rel="noopener">Vector 35</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Ghidra + Python + Open Tools</div>
+          <div class="item-price">$0</div>
+        </div>
+        <p class="item-description">
+          Free NSA-released reverse engineering platform with excellent Tricore and MPC5xxx support through community plugins. Many shops rely entirely on Ghidra for firmware analysis because it is genuinely competitive with IDA Pro at zero cost. Essential redundancy to paid tools.
+        </p>
+        <a class="item-link" href="https://ghidra-sre.org/" target="_blank" rel="noopener">Ghidra</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Mercedes Vediamo + DTS Monaco</div>
+          <div class="item-price">$2,000</div>
+        </div>
+        <p class="item-description">
+          Mercedes engineering-level diagnostic software beyond Xentry. Exposes developer coding functions, raw UDS access, and engineering-mode operations dealers cannot perform. Sourced through team relationships as these are leaked internal tools, not commercially available.
+        </p>
+        <span class="no-link">Gray market / team relationship</span>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">VAG ODIS Engineering Suite</div>
+          <div class="item-price">$3,500</div>
+        </div>
+        <p class="item-description">
+          Engineering version of ODIS that includes full SFD (Software Feature Data) unlock capability and factory-level coding access. Regular ODIS-S (Service) is customer-facing; ODIS-E is what Audi/VW engineers use internally. Required for any serious VAG platform modification work.
+        </p>
+        <span class="no-link">Authorized reseller / team relationship</span>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Mercedes StarFinder + WIS</div>
+          <div class="item-price">$600</div>
+        </div>
+        <p class="item-description">
+          Workshop Information System with complete wiring diagrams, service procedures, and parts identification for every Mercedes. Essential companion to any diagnostic work because the moment a procedure gets complex you need the factory documentation. Subscription includes regular refreshes.
+        </p>
+        <a class="item-link" href="https://startekinfo.com/" target="_blank" rel="noopener">StarTekInfo</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">BMW ISTA-P Complete Package</div>
+          <div class="item-price">$500</div>
+        </div>
+        <p class="item-description">
+          BMW programming software that handles SGBD (ECU module identification) and SWE (module software update) files. Used alongside ISTA+ for the full dealer-level BMW experience. Sourced through community given BMW's extensive leaked-tool ecosystem.
+        </p>
+        <span class="no-link">Community / gray market</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section id="safety">
+    <div class="section-header">
+      <div class="section-title"><span class="num">11</span>Power, Safety, Workspace</div>
+      <div class="section-subtotal">$3,690</div>
+    </div>
+    <p class="section-description">
+      Foundation items that prevent expensive mistakes. Battery maintainers prevent bricked ECUs during long flashes. HV safety kit is legally required for any hybrid/EV work. ESD protection extends chip life on the bench. Small line items that save five-figure disasters.
+    </p>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">CTEK MXS 25 Battery Maintainers (x3)</div>
+          <div class="item-price">$840</div>
+        </div>
+        <p class="item-description">
+          25-amp professional battery chargers that hold voltage stable during long ECU programming sessions. Voltage drop during a flash is the #1 cause of bricked ECUs and tow-truck recoveries. Three units because multiple bays work simultaneously.
+        </p>
+        <a class="item-link" href="https://www.ctek.com/us/chargers/mxs-25-eu" target="_blank" rel="noopener">CTEK</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">ESD Bench Mats + Wrist Straps</div>
+          <div class="item-price">$200</div>
+        </div>
+        <p class="item-description">
+          Antistatic workspace protection for ECU and chip-level work. A single static discharge can destroy a flash memory chip or MCU you've spent three hours removing. Grounded mats and wrist straps are professional-standard equipment.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/s?k=ESD+mat+grounding+kit" target="_blank" rel="noopener">Amazon</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Class C Fire Extinguishers (x2)</div>
+          <div class="item-price">$100</div>
+        </div>
+        <p class="item-description">
+          Electrical-fire-rated extinguishers placed in every bay. Required by most jurisdictions for shop insurance and genuinely necessary when working with lithium batteries and high-voltage circuits. Two so one is always within arm's reach.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/s?k=class+C+fire+extinguisher" target="_blank" rel="noopener">Amazon</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">First Aid + Eye Wash</div>
+          <div class="item-price">$150</div>
+        </div>
+        <p class="item-description">
+          OSHA-standard first aid kit and eyewash station. Soldering and rework involves flux splatter and occasional burns. Eye wash specifically required when working with rework flux and cleaning solvents. Required for insurance compliance.
+        </p>
+        <a class="item-link" href="https://www.grainger.com/category/first-aid/first-aid-kits" target="_blank" rel="noopener">Grainger</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">HV Safety Kit (Class 0 Gloves, VDE Tools, Mat)</div>
+          <div class="item-price">$1,300</div>
+        </div>
+        <p class="item-description">
+          Required personal protective equipment for any hybrid or EV work. Your 2026 C63's hybrid system operates at 400V+ which is lethal on contact. Class 0 gloves rated 1000V, VDE-rated insulated tools, and dielectric mat are the minimum legal requirements.
+        </p>
+        <a class="item-link" href="https://www.grainger.com/category/safety/electrical-safety" target="_blank" rel="noopener">Grainger</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Bench Lighting + Magnifier Lamps</div>
+          <div class="item-price">$300</div>
+        </div>
+        <p class="item-description">
+          Color-accurate 5000K LED task lighting at 1500+ lumens per station. Plus magnifier lamps for intermediate-detail work that doesn't require the microscope. Cheap lighting causes mistakes on fine-pitch work and contributes to eye strain over long sessions.
+        </p>
+        <a class="item-link" href="https://www.amazon.com/s?k=5000K+led+bench+lamp+magnifier" target="_blank" rel="noopener">Amazon</a>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Tool Storage + Organization</div>
+          <div class="item-price">$800</div>
+        </div>
+        <p class="item-description">
+          Rolling tool cart, drawer organizers, and small-parts cabinets for the dozens of small tools and cables that accumulate. Having a place for everything means setup time per job goes from 20 minutes to 2. Small workshop efficiency compounds massively.
+        </p>
+        <a class="item-link" href="https://www.harborfreight.com/tool-storage-organization.html" target="_blank" rel="noopener">Harbor Freight</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MRE -->
+  <section id="mre">
+    <div class="section-header">
+      <div class="section-title"><span class="num">12</span>Monthly Recurring Expenses</div>
+      <div class="section-subtotal">$1,526/mo</div>
+    </div>
+    <p class="section-description">
+      SaaS subscriptions, per-seat tools, and API usage. These keep the shop running day-to-day. The Tailscale + Proton + 1Password stack enables secure remote work. Claude and OpenAI power the agent automation that multiplies technician productivity 3x.
+    </p>
+    <table class="recurring-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Purpose</th>
+          <th style="text-align: right">Monthly</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="https://tailscale.com/pricing" target="_blank" style="color: var(--blue)">Tailscale Business (12 seats)</a></td><td>Secure remote access to Pi fleet and shop infrastructure</td><td class="price">$72</td></tr>
+        <tr><td><a href="https://www.backblaze.com/b2/cloud-storage.html" target="_blank" style="color: var(--blue)">Backblaze B2 (5TB)</a></td><td>Encrypted offsite backup of ECU firmware archive</td><td class="price">$30</td></tr>
+        <tr><td><a href="https://proton.me/business" target="_blank" style="color: var(--blue)">Proton Business (5 seats)</a></td><td>Encrypted email and file sharing for customer data</td><td class="price">$55</td></tr>
+        <tr><td><a href="https://1password.com/business/" target="_blank" style="color: var(--blue)">1Password Business (12 seats)</a></td><td>Shared credential vault for OEM tool accounts</td><td class="price">$96</td></tr>
+        <tr><td><a href="https://github.com/pricing" target="_blank" style="color: var(--blue)">GitHub Team (12 seats)</a></td><td>Firmware version control and team collaboration</td><td class="price">$48</td></tr>
+        <tr><td><a href="https://www.cloudflare.com/plans/zero-trust-services/" target="_blank" style="color: var(--blue)">Cloudflare Access (5 seats)</a></td><td>Zero-trust access to internal tooling</td><td class="price">$15</td></tr>
+        <tr><td><a href="https://www.anthropic.com/api" target="_blank" style="color: var(--blue)">Claude API (agent workflows)</a></td><td>Primary LLM for shop automation and customer reports</td><td class="price">$500</td></tr>
+        <tr><td><a href="https://openai.com/api/" target="_blank" style="color: var(--blue)">OpenAI API (backup)</a></td><td>Failover LLM and specialized tasks</td><td class="price">$200</td></tr>
+        <tr><td><a href="https://www.cursor.com/" target="_blank" style="color: var(--blue)">Cursor Pro (3 seats)</a></td><td>AI-assisted code editor for custom tool development</td><td class="price">$60</td></tr>
+        <tr><td><a href="https://grafana.com/pricing/" target="_blank" style="color: var(--blue)">Grafana Cloud</a></td><td>Telemetry dashboards for customer car monitoring</td><td class="price">$50</td></tr>
+        <tr><td><a href="https://sentry.io/pricing/" target="_blank" style="color: var(--blue)">Sentry (hardware monitoring)</a></td><td>Error tracking for custom piggyback products</td><td class="price">$30</td></tr>
+        <tr><td><a href="https://n8n.io/" target="_blank" style="color: var(--blue)">n8n Cloud (or self-host)</a></td><td>Workflow automation for shop operations</td><td class="price">$20</td></tr>
+        <tr><td><a href="https://www.shopmonkey.io/" target="_blank" style="color: var(--blue)">Shop Management (ShopMonkey)</a></td><td>Customer, invoicing, appointment management</td><td class="price">$200</td></tr>
+        <tr><td><a href="https://jlcpcb.com/" target="_blank" style="color: var(--blue)">JLCPCB Credits</a></td><td>PCB prototyping for custom products</td><td class="price">$150</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="2"><strong>MRE TOTAL</strong></td><td class="price"><strong>$1,526/mo</strong></td></tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <!-- ARE -->
+  <section id="are">
+    <div class="section-header">
+      <div class="section-title"><span class="num">13</span>Annual Recurring Expenses</div>
+      <div class="section-subtotal">$63,899/yr</div>
+    </div>
+    <p class="section-description">
+      One-shot annual bills. OEM subscription renewals, software maintenance, file-writing retainers, and insurance. Most of these must be prepaid at day zero to have active access from hour one. The file-writing service retainers are how you decrypt HSM firmware without cracking it yourself.
+    </p>
+    <table class="recurring-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Purpose</th>
+          <th style="text-align: right">Annual</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="https://www.evc.de/en/product/winols/" target="_blank" style="color: var(--blue)">WinOLS Maintenance + Damos</a></td><td>Updates, new ECU coverage, Damos database access</td><td class="price">$1,200</td></tr>
+        <tr><td><a href="https://www.alientech-tools.com/" target="_blank" style="color: var(--blue)">ECM Titanium Updates</a></td><td>New driver files and feature updates</td><td class="price">$400</td></tr>
+        <tr><td><a href="https://hex-rays.com/" target="_blank" style="color: var(--blue)">IDA Pro Maintenance</a></td><td>Version upgrades and decompiler module updates</td><td class="price">$1,500</td></tr>
+        <tr><td><a href="https://binary.ninja/" target="_blank" style="color: var(--blue)">Binary Ninja Renewal</a></td><td>Commercial license renewal</td><td class="price">$1,499</td></tr>
+        <tr><td><a href="https://www.altium.com/" target="_blank" style="color: var(--blue)">Altium Designer Subscription</a></td><td>PCB design software maintenance</td><td class="price">$3,500</td></tr>
+        <tr><td><a href="https://aftersales.mercedes-benz.com/" target="_blank" style="color: var(--blue)">Mercedes Xentry + SDconnect</a></td><td>Dealer diagnostic software updates</td><td class="price">$2,000</td></tr>
+        <tr><td><a href="https://startekinfo.com/" target="_blank" style="color: var(--blue)">Mercedes WIS + StarFinder</a></td><td>Workshop info system refresh</td><td class="price">$300</td></tr>
+        <tr><td><a href="https://www.porsche.com/" target="_blank" style="color: var(--blue)">Porsche PPN Access</a></td><td>Porsche Partner Network authenticated tool access</td><td class="price">$2,000</td></tr>
+        <tr><td><a href="https://erwin.volkswagen.de/" target="_blank" style="color: var(--blue)">VAG ODIS-S + ODIS-E</a></td><td>VW Group service and engineering tool updates</td><td class="price">$2,100</td></tr>
+        <tr><td><a href="https://www.autel.com/" target="_blank" style="color: var(--blue)">Autel MaxiSys Update</a></td><td>Annual software update subscription</td><td class="price">$1,200</td></tr>
+        <tr><td><a href="https://www.x431.com/" target="_blank" style="color: var(--blue)">Launch X-431 Update</a></td><td>Annual software update subscription</td><td class="price">$800</td></tr>
+        <tr><td><a href="https://www.alientech-tools.com/" target="_blank" style="color: var(--blue)">KESS3 Annual Subscription</a></td><td>Cloud updates and new ECU protocols</td><td class="price">$600</td></tr>
+        <tr><td><a href="https://www.magicmotorsport.com/" target="_blank" style="color: var(--blue)">Flex Annual Subscription</a></td><td>FlexCloud credits and protocol updates</td><td class="price">$600</td></tr>
+        <tr><td><a href="https://www.auto-tuner.com/" target="_blank" style="color: var(--blue)">Autotuner Annual</a></td><td>Tool updates and coverage additions</td><td class="price">$1,200</td></tr>
+        <tr><td><a href="https://www.dimsport.it/" target="_blank" style="color: var(--blue)">CMD Flash Updates</a></td><td>Legacy ECU support maintenance</td><td class="price">$400</td></tr>
+        <tr><td><a href="https://abrites.com/" target="_blank" style="color: var(--blue)">Abrites Annual Update Package</a></td><td>All commander software updates</td><td class="price">$1,500</td></tr>
+        <tr><td><a href="https://www.vector.com/" target="_blank" style="color: var(--blue)">Vector CANalyzer.pro Maintenance</a></td><td>Software updates and support</td><td class="price">$1,500</td></tr>
+        <tr><td><a href="https://www.vector.com/" target="_blank" style="color: var(--blue)">Vector CANoe Maintenance</a></td><td>Simulation environment updates</td><td class="price">$3,500</td></tr>
+        <tr><td><a href="https://intrepidcs.com/" target="_blank" style="color: var(--blue)">Vehicle Spy Maintenance</a></td><td>Protocol analysis software updates</td><td class="price">$700</td></tr>
+        <tr><td><a href="https://www.tricoreforum.com/" target="_blank" style="color: var(--blue)">Tricore Forum Premium</a></td><td>Insider community and file sharing</td><td class="price">$500</td></tr>
+        <tr><td>ECU-Connections Premium</td><td>Calibration database access</td><td class="price">$200</td></tr>
+        <tr><td>Damos individual file budget</td><td>Per-ECU calibration annotation files</td><td class="price">$3,000</td></tr>
+        <tr><td>DBC / A2L library acquisition</td><td>CAN database and calibration files</td><td class="price">$2,000</td></tr>
+        <tr><td>DimSport encrypted file retainer</td><td>HSM decryption service relationship</td><td class="price">$3,000</td></tr>
+        <tr><td>MagicMotorsport FlexCloud credits</td><td>Encrypted file service prepay</td><td class="price">$2,000</td></tr>
+        <tr><td>Alientech Cloud credits</td><td>HSM file write service prepay</td><td class="price">$2,000</td></tr>
+        <tr><td>Private tuner network relationships</td><td>Insider crypto support</td><td class="price">$5,000</td></tr>
+        <tr><td>Private crypto research partnerships</td><td>Upstream HSM break access</td><td class="price">$6,000</td></tr>
+        <tr><td>Lab consumables</td><td>Chemistry, probes, solder inventory</td><td class="price">$800</td></tr>
+        <tr><td>Garage keepers insurance</td><td>Coverage for customer vehicles in shop</td><td class="price">$3,500</td></tr>
+        <tr><td>Product liability insurance</td><td>Coverage for custom products and tunes</td><td class="price">$4,500</td></tr>
+        <tr><td>Shop general liability</td><td>Premises and operational coverage</td><td class="price">$2,500</td></tr>
+        <tr><td>Business attorney retainer</td><td>Contract, IP, and compliance support</td><td class="price">$2,000</td></tr>
+        <tr><td>LLC + registered agent</td><td>State filing fees and corporate services</td><td class="price">$400</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="2"><strong>ARE TOTAL</strong></td><td class="price"><strong>$63,899/yr</strong></td></tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <!-- POC BUDGET -->
+  <section id="poc">
+    <div class="section-header">
+      <div class="section-title"><span class="num">14</span>Proof-of-Concept Project Budget</div>
+      <div class="section-subtotal">$17,600</div>
+    </div>
+    <p class="section-description">
+      Working capital for the first six PoC projects. Each project builds demo capability on a specific brand and ECU family, creating content for your marketing and firsthand validation of your tool stack. Includes buffer for surprises and extra test ECUs from salvage.
+    </p>
+    <div class="poc-grid">
+      <div class="poc-card">
+        <div class="poc-number">PoC 01</div>
+        <div class="poc-title">W212 E63 AMG Full Stage Tune (OBD)</div>
+        <div class="poc-cost">$1,200</div>
+      </div>
+      <div class="poc-card">
+        <div class="poc-number">PoC 02</div>
+        <div class="poc-title">991.2 Turbo S Bench Flash + Map Development</div>
+        <div class="poc-cost">$2,400</div>
+      </div>
+      <div class="poc-card">
+        <div class="poc-number">PoC 03</div>
+        <div class="poc-title">G8x M3 Custom Coding + MHD Integration</div>
+        <div class="poc-cost">$1,500</div>
+      </div>
+      <div class="poc-card">
+        <div class="poc-number">PoC 04</div>
+        <div class="poc-title">2022+ AMG HSM Bench Read + Service Flash</div>
+        <div class="poc-cost">$2,800</div>
+      </div>
+      <div class="poc-card">
+        <div class="poc-number">PoC 05</div>
+        <div class="poc-title">Custom Piggyback Prototype for 2026 C63</div>
+        <div class="poc-cost">$3,500</div>
+      </div>
+      <div class="poc-card">
+        <div class="poc-number">PoC 06</div>
+        <div class="poc-title">Key Programming Demo on FBS4 Mercedes</div>
+        <div class="poc-cost">$1,200</div>
+      </div>
+      <div class="poc-card" style="border-left-color: var(--warning)">
+        <div class="poc-number">BUFFER</div>
+        <div class="poc-title">Contingency for Ruined Parts / Extra ECUs</div>
+        <div class="poc-cost">$5,000</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRAND TOTAL -->
+  <section id="total">
+    <div class="grand-total">
+      <div class="label">Day Zero Total Cash Requirement</div>
+      <div class="number">$362,900</div>
+      <div class="breakdown">
+        <span>CapEx <strong>$244,975</strong></span>
+        <span>ARE Year 1 <strong>$63,899</strong></span>
+        <span>PoC Capital <strong>$17,600</strong></span>
+        <span>MRE Q1 Prepay <strong>$4,578</strong></span>
+        <span>Shipping + Tax <strong>$19,598</strong></span>
+        <span>Contingency <strong>$12,250</strong></span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <p><strong>God-Tier ECU Shop Day Zero Plan</strong></p>
+    <p>Complete build list. Every tool for every capability, across every target brand.</p>
+    <p style="margin-top: 1rem;">All pricing reflects retail or authorized gray-market sourcing. Used equipment can reduce capex 20-35% where noted in primary doc.</p>
+  </div>
+</footer>
+
+</body>
+</html>
